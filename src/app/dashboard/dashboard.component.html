@@ -1,1 +1,2 @@
-<app-line-chart [rawData]="rawData"></app-line-chart>
+<label *ngFor="let city of cities" class="label"><input type="checkbox" [checked]="city.show">{{city.name}}</label>
+<app-line-chart [rawData]="rawData" [cities]="cities"></app-line-chart>
