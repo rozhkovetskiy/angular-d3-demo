@@ -23,7 +23,7 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  public changes(id: string, show: boolean ): void {
+  public toggleLines(id: string, show: boolean ): void {
     this.chartChanges = { id, show };
   }
 

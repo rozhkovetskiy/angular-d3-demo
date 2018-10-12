@@ -1,8 +1,10 @@
 import * as d3 from 'd3';
 import { ChartConfig } from '../../shared/models/chart-cofig.model';
 
-
 export class LineChart {
+  private _xScale: any;
+  private _yScale: any;
+  private _svg: any;
 
   constructor(private _content: any) { }
 
@@ -10,76 +12,49 @@ export class LineChart {
     const margin = {top: 50, right: 50, bottom: 50, left: 50};
 
     const dateParser = d3.timeParse('%Y%m%d');
-    dataset.forEach((item) => item.date = dateParser(item.date));
+    const colorScale = d3.scaleOrdinal(d3['schemeCategory10']);
 
-    const xScale = d3.scaleTime()
+    dataset.forEach((item) => {
+      item.date = dateParser(item.date);
+    });
+
+    this._xScale = d3.scaleTime()
       .range([0, config.width])
-      .domain(d3.extent(dataset, (d) => d.date));
+      .domain(d3.extent(dataset, (d: any) => new Date(d.date)));
 
-    const yScale = d3.scaleLinear()
+    this._yScale = d3.scaleLinear()
       .domain([
         d3.min(dataset, (d) => Math.min(d['New York'], d['San Francisco'], d['Austin'])),
         d3.max(dataset, (d) => Math.max(d['New York'], d['San Francisco'], d['Austin']))
       ])
       .range([config.height, 0]);
 
-    const line1 = d3.line()
-      .x((d) => xScale(d['date']))
-      .y((d) => yScale(d['New York']))
-      .curve(d3.curveMonotoneX);
-
-    const line2 = d3.line()
-      .x((d) => xScale(d['date']))
-      .y((d) => yScale(d['San Francisco']))
-      .curve(d3.curveMonotoneX);
-
-
-    const line3 = d3.line()
-      .x((d) => xScale(d['date']))
-      .y((d) => yScale(d['Austin']))
-      .curve(d3.curveMonotoneX);
-
-    const svg = d3.select(this._content)
+    this._svg = d3.select(this._content)
       .append('svg')
         .attr('width', config.width + margin.left + margin.right)
         .attr('height', config.height + margin.top + margin.bottom)
       .append('g')
         .attr('transform', `translate(${margin.top}, ${margin.left})`);
 
-    svg.append('g')
+    this._svg.append('g')
       .attr('transform', `translate(0, ${config.height})`)
-      .call(d3.axisBottom(xScale));
+      .call(d3.axisBottom(this._xScale));
 
-    svg.append('g')
-      .call(d3.axisLeft(yScale));
+    this._svg.append('g')
+      .call(d3.axisLeft(this._yScale));
 
-    svg.append('path')
-      .datum(dataset)
-      .attr('id', 'NewYork')
-      .attr('fill', 'none')
-      .attr('stroke', 'red')
-      .attr('stroke-width', '2')
-      .attr('d', line1);
+    const datasetConfig = Object.keys(dataset[0]).splice(1).map((item) => {
+      return {id: item.replace(' ', ''), name: item};
+    });
 
-    svg.append('path')
-      .datum(dataset)
-      .attr('id', 'SanFrancisco')
-      .attr('fill', 'none')
-      .attr('stroke', 'green')
-      .attr('stroke-width', '2')
-      .attr('d', line2);
-
-    svg.append('path')
-      .datum(dataset)
-      .attr('id', 'Austin')
-      .attr('fill', 'none')
-      .attr('stroke', 'blue')
-      .attr('stroke-width', '2')
-      .attr('d', line3);
+    datasetConfig.forEach((item, index) => {
+      this.addLine(dataset, item.id, item.name, colorScale(index));
+    });
   }
 
   rerender() { }
   resize() { }
+
   destroy() {
     d3.select('svg').remove();
   }
@@ -91,5 +66,20 @@ export class LineChart {
     } else {
       line.attr('visibility', 'hidden');
     }
+  }
+
+  private addLine(dataset: any, id: string, name: string, color: string) {
+    const line = d3.line()
+    .x((d) => this._xScale(d['date']))
+    .y((d) => this._yScale(d[name]))
+    .curve(d3.curveMonotoneX);
+
+    this._svg.append('path')
+      .datum(dataset)
+      .attr('id', id)
+      .attr('fill', 'none')
+      .attr('stroke', color)
+      .attr('stroke-width', '2')
+      .attr('d', line);
   }
 }

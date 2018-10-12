@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
-import { ChartConfig } from './../../shared/models/chart-cofig.model';
+import { ChartConfig } from '../../shared/models/chart-cofig.model';
 import { LineChart } from './line-chart';
 
 @Component({
@@ -25,12 +25,23 @@ export class LineChartComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.chart && !this.chartInit) {
-      this.chartInit = true;
-      this.chart.render(this.rawData, this.config);
-    }
-    if (changes.chartChanges && !changes.chartChanges.firstChange) {
-      this.chart.toggleLine(changes.chartChanges.currentValue.id, changes.chartChanges.currentValue.show);
+    for (const propName in changes) {
+
+      if (changes.hasOwnProperty(propName)) {
+
+        // init chart
+        if (propName === 'rawData' && typeof changes[propName].currentValue !== 'undefined' && !this.chartInit) {
+          this.chartInit = true;
+          this.chart.render(this.rawData, this.config);
+        }
+
+        // check for changin state of line
+        if (propName === 'chartChanges' && changes[propName].currentValue.hasOwnProperty('show')) {
+          this.chart.toggleLine(changes[propName].currentValue.id, changes[propName].currentValue.show);
+        }
+      }
     }
   }
+
 }
+
