@@ -55,7 +55,7 @@ export class LineChart {
 
     svg.append('path')
       .datum(dataset)
-      .attr('id', 'ny')
+      .attr('id', 'NewYork')
       .attr('fill', 'none')
       .attr('stroke', 'red')
       .attr('stroke-width', '2')
@@ -63,7 +63,7 @@ export class LineChart {
 
     svg.append('path')
       .datum(dataset)
-      .attr('id', 'sf')
+      .attr('id', 'SanFrancisco')
       .attr('fill', 'none')
       .attr('stroke', 'green')
       .attr('stroke-width', '2')
@@ -71,7 +71,7 @@ export class LineChart {
 
     svg.append('path')
       .datum(dataset)
-      .attr('id', 'au')
+      .attr('id', 'Austin')
       .attr('fill', 'none')
       .attr('stroke', 'blue')
       .attr('stroke-width', '2')
@@ -84,13 +84,12 @@ export class LineChart {
     d3.select('svg').remove();
   }
 
-  public showLine(id: string): void {
-    d3.select(`path#${id}`)
-      .attr('visibility', 'visible');
-  }
-
-  public hideLine(id: string): void {
-    d3.select(`path#${id}`)
-      .attr('visibility', 'hidden');
+  public toggleLine(id: string, state: boolean) {
+    const line = d3.select(`path#${id}`);
+    if (state) {
+      line.attr('visibility', 'visible');
+    } else {
+      line.attr('visibility', 'hidden');
+    }
   }
 }

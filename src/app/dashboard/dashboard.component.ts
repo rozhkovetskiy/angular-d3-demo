@@ -2,10 +2,6 @@ import { Component, OnInit } from '@angular/core';
 
 import { GetDataService } from '../../shared/services/get-data.service';
 
-interface CityCheckbox {
-  name: string;
-  show: boolean;
-}
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -14,7 +10,8 @@ interface CityCheckbox {
 
 export class DashboardComponent implements OnInit {
   public rawData: any;
-  public cities: CityCheckbox[] = [];
+  public chartsData = [];
+  public chartChanges = {};
 
   constructor(private _getDataService: GetDataService) { }
 
@@ -26,15 +23,14 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  public showChart(city: string): void {
-    console.log(city);
+  public changes(id: string, show: boolean ): void {
+    this.chartChanges = { id, show };
   }
 
   private getCharts(data: Object): void {
     const cityNames = Object.keys(data).splice(1);
     cityNames.forEach((item) => {
-      this.cities.push({name: item, show: true});
+      this.chartsData.push({ id: item.replace(' ', ''), name: item, show: true });
     });
-    console.log(this.cities);
   }
 }
